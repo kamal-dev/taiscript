@@ -12,17 +12,21 @@ TOKEN_SPECIFICATION = [
     ('DECREMENT', r'ghatao'),                   # Decrement Operator
     ('COMPARISON', r'barabar hai|alag hai|bada hai|chota hai|bada ya barabar hai|chota ya barabar hai'),    # Comparison Operator
     ('CONDITIONAL', r'agar|warna'),             # Conditional Statements
-    ('LOOP', r'ginti karo|ginti band'),         # Loops
-    ('FILE', r'file kholo|band karo'),          # File Operations
+    ('LOOP_START', r'ginti karo'),              # Loop Start
+    ('LOOP_END', r'ginti band'),                # Loop End
+    ('FILE_OPEN', r'file kholo'),               # File Operations
+    ('FILE_CLOSE', r'band karo'),               # File Operations
     ('FILE_DECL', r'aur naam do'),              # File Instance Creation
     ('STRUCT_DECL', r'dhacha banao'),           # Structure declaration
     ('STRUCT_INSTANCE', r'aur usko banao'),     # Structure Instance Creation
     ('STRUCT_ACCESS', r'ka'),                   # Access structure properties
     ('BREAK', r'bijli chali gayi'),             # Break statement
     ('RETURN', r'sarkar gir gayi'),             # Return statement
-    ('LBRACE', r'\{'),                          # Left brace `{`
-    ('RBRACE', r'\}'),                          # Right brace `}`
-    ('SKIP_WORD', r'se|toh'),                    # Fancy unnecessary words
+    ('LCBRACE', r'\{'),                         # Left curly brace `{`
+    ('RCBRACE', r'\}'),                         # Right curly brace `}`
+    ('LRBRACE', r'\('),                         # Left round brace `(`
+    ('RRBRACE', r'\)'),                         # Right roundbrace `)`
+    ('SKIP_WORD', r'se|toh|tak|aur'),           # Fancy unnecessary words
     ('IDENTIFIER', r'[a-zA-Z_][a-zA-Z0-9_]*'),  # Identifiers
     ('NEWLINE', r';'),                          # Line Break
     ('SKIP', r'[ \t]+'),                        # Skip spaces and tabs
@@ -32,6 +36,20 @@ TOKEN_SPECIFICATION = [
 tokenRegex = '|'.join(f'(?P<{pair[0]}>{pair[1]})' for pair in TOKEN_SPECIFICATION)
 
 def lexer(code):
+    """
+    This function is used to tokenize the input tai code.
+
+    Args:
+        code (str): The tai code is taken as string by the lexer()
+
+    Raises:
+        SyntaxError: In case if there are any unwanted characters in
+                    the code, it raises a Syntax Error exception.
+
+    Returns:
+        list: Returns a 2D list containing the kind of
+            token and the token.
+    """
     tokens = []
     structTypes = set()
     tokenIter = re.finditer(tokenRegex, code)
@@ -52,30 +70,30 @@ def lexer(code):
             raise SyntaxError(f'Unexpected character: {value}')
 
         if (kind == 'STRUCT_DECL' and (i+1) < len(tokenList)):
-            next_index = i + 1
-            while next_index < len(tokenList) and tokenList[next_index].lastgroup in ('SKIP', 'NEWLINE', 'SKIP_WORD'):
-                next_index += 1
+            nextIndex = i + 1
+            while nextIndex < len(tokenList) and tokenList[nextIndex].lastgroup in ('SKIP', 'NEWLINE', 'SKIP_WORD'):
+                nextIndex += 1
             next_token = tokenList[i + 1]
 
-            if (next_index < len(tokenList) and tokenList[next_index].lastgroup == 'IDENTIFIER'):
-                structName = tokenList[next_index].group('IDENTIFIER')
+            if (nextIndex < len(tokenList) and tokenList[nextIndex].lastgroup == 'IDENTIFIER'):
+                structName = tokenList[nextIndex].group('IDENTIFIER')
                 structTypes.add(structName)
                 tokens.append((kind, value))
                 tokens.append(('STRUCT_TYPE', structName))
-                i = next_index + 1
+                i = nextIndex + 1
                 continue
 
         if (kind == 'STRUCT_INSTANCE' and (i + 1) < len(tokenList)):
-            next_index = i + 1
-            while next_index < len(tokenList) and tokenList[next_index].lastgroup in ('SKIP', 'NEWLINE', 'SKIP_WORD'):
-                next_index += 1
-            if next_index < len(tokenList) and tokenList[next_index].lastgroup == 'IDENTIFIER':
-                structName = tokenList[next_index].group('IDENTIFIER')
+            nextIndex = i + 1
+            while nextIndex < len(tokenList) and tokenList[nextIndex].lastgroup in ('SKIP', 'NEWLINE', 'SKIP_WORD'):
+                nextIndex += 1
+            if nextIndex < len(tokenList) and tokenList[nextIndex].lastgroup == 'IDENTIFIER':
+                structName = tokenList[nextIndex].group('IDENTIFIER')
                 if structName in structTypes:
                     tokens.append((kind, value))
                     tokens.append(('STRUCT_TYPE', structName))
                     print(f"Instantiating Struct: {structName}")
-                    i = next_index + 1
+                    i = nextIndex + 1
                     continue
 
         tokens.append((kind, value))
@@ -84,7 +102,7 @@ def lexer(code):
     return tokens
 
 if __name__ == '__main__':
-    sample_code = """
+    sampleCode = """
             dhacha banao TaxPayer {
                 likho name;
                 likho age;
@@ -92,4 +110,4 @@ if __name__ == '__main__':
             }
             likho tp aur usko banao TaxPayer
         """
-    print(lexer(sample_code))
+    print(lexer(sampleCode))

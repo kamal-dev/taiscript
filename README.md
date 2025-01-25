@@ -1,4 +1,4 @@
-# **🪙 TaiScript - The Programming Language of Bureaucracy, Bribes, and Taxation**
+# **🪙 TaiScript - The only language that taxes your code and needs bribe to compile**
 
 ### **Bringing the chaos of Governance into programming.**
 

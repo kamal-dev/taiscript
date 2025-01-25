@@ -41,14 +41,14 @@ class TestLexer (unittest.TestCase):
         expectedTokens = [
             ('STRUCT_DECL', 'dhacha banao'),
             ('STRUCT_TYPE', 'TaxPayer'),
-            ('LBRACE', '{'),
+            ('LCBRACE', '{'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'name'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'age'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'salary'),
-            ('RBRACE', '}')
+            ('RCBRACE', '}')
         ]
 
         self.assertEqual(lexer(code), expectedTokens)
@@ -65,14 +65,14 @@ class TestLexer (unittest.TestCase):
         expectedTokens = [
             ('STRUCT_DECL', 'dhacha banao'),
             ('STRUCT_TYPE', 'TaxPayer'),
-            ('LBRACE', '{'),
+            ('LCBRACE', '{'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'name'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'age'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'salary'),
-            ('RBRACE', '}'),
+            ('RCBRACE', '}'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'tp'),
             ('STRUCT_INSTANCE', 'aur usko banao'),
@@ -156,29 +156,29 @@ class TestLexer (unittest.TestCase):
             ('IDENTIFIER', 'a'),
             ('COMPARISON', 'bada hai'),
             ('NUMBER', 5),
-            ('LBRACE', '{'),
+            ('LCBRACE', '{'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'c'),
             ('NUMBER', 6),
-            ('RBRACE', '}'),
+            ('RCBRACE', '}'),
             ('CONDITIONAL', 'warna'),
-            ('LBRACE', '{'),
+            ('LCBRACE', '{'),
             ('CONDITIONAL', 'agar'),
             ('IDENTIFIER', 'a'),
             ('COMPARISON', 'chota hai'),
             ('NUMBER', 5),
-            ('LBRACE', '{'),
+            ('LCBRACE', '{'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'c'),
             ('NUMBER', 4),
-            ('RBRACE', '}'),
+            ('RCBRACE', '}'),
             ('CONDITIONAL', 'warna'),
-            ('LBRACE', '{'),
+            ('LCBRACE', '{'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'c'),
             ('NUMBER', 5),
-            ('RBRACE', '}'),
-            ('RBRACE', '}'),
+            ('RCBRACE', '}'),
+            ('RCBRACE', '}'),
         ]
 
         self.assertEqual(lexer(code), expectedTokens)
@@ -214,34 +214,36 @@ class TestLexer (unittest.TestCase):
     def test_file_operations(self):
         code = """
             file kholo "taxreport.txt" aur naam do taxdata
-            taxdata band karo
+            band karo taxdata
         """
         expected_tokens = [
-            ('FILE', 'file kholo'),
+            ('FILE_OPEN', 'file kholo'),
             ('STRING', 'taxreport.txt'),
             ('FILE_DECL', 'aur naam do'),
             ('IDENTIFIER', 'taxdata'),
-            ('IDENTIFIER', 'taxdata'),
-            ('FILE', 'band karo')
+            ('FILE_CLOSE', 'band karo'),
+            ('IDENTIFIER', 'taxdata')
         ]
 
         self.assertEqual(lexer(code), expected_tokens)
 
     def test_loops(self):
         code = """
-        ginti karo i 1 se 10 tak
+        ginti karo i 1 se 10 tak {
             likho i
+        }
         ginti band
         """
         expected_tokens = [
-            ('LOOP', 'ginti karo'),
+            ('LOOP_START', 'ginti karo'),
             ('IDENTIFIER', 'i'),
             ('NUMBER', 1),
             ('NUMBER', 10),
-            ('IDENTIFIER', 'tak'),
+            ('LCBRACE', '{'),
             ('VAR_DECL', 'likho'),
             ('IDENTIFIER', 'i'),
-            ('LOOP', 'ginti band')
+            ('RCBRACE', '}'),
+            ('LOOP_END', 'ginti band')
         ]
         self.assertEqual(lexer(code), expected_tokens)
 
