@@ -80,8 +80,6 @@ class Environment:
         if (alias in self.files):
             raise RuntimeError(f"File alias '{alias}' is already in use.")
 
-        # TODO: Check if file exists else raise an exception
-
         self.files[alias] = open(file_name, 'w')
 
     def close_file(self, alias):

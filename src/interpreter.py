@@ -15,9 +15,16 @@ class Interpreter:
 
         Args:
             ast (list): List of statement from AST
+
+        Raises:
+            RuntimeError: Raises an exception if an error occurs during interpretation
         """
-        for statement in ast:
-            self.execute(statement)
+        try:
+            for statement in ast:
+                self.execute(statement)
+        except RuntimeError as e:
+            print(f"Runtime Error: {str(e)}")
+            sys.exit(1)
 
     def execute(self, statement):
         """
@@ -77,14 +84,22 @@ class Interpreter:
 
         Args:
             statement (dict): A dictionary representing conditional statement
+
+        Raises:
+            RuntimeError: If the "if" branch is missing when the condition evaluates to True.
         """
         condition = self.evaluate(statement["condition"])
-        if condition:
-            for s in statement["if"]:
-                self.execute(s)
-        elif statement["else"]:
+        if (condition):
+            if ("if" in statement and statement["if"]):
+                for s in statement["if"]:
+                    self.execute(s)
+            else:
+                raise RuntimeError("Missing 'if' branch in conditional.")
+        elif ("else" in statement and statement["else"]):
             for s in statement["else"]:
                 self.execute(s)
+        else:
+            pass
 
     def execute_loop(self, statement):
         """
@@ -99,10 +114,16 @@ class Interpreter:
         increment = statement.get("increment", 1)
 
         self.env.set_variable(var, start)
-        while (self.env.get_variable(var) <= end):
-            for s in statement["body"]:
-                self.execute(s)
-            self.env.set_variable(var, self.env.get_variable(var) + increment)
+        if (increment > 0):
+            while (self.env.get_variable(var) <= end):
+                for s in statement["body"]:
+                    self.execute(s)
+                self.env.set_variable(var, self.env.get_variable(var) + increment)
+        else:
+            while (self.env.get_variable(var) >= end):
+                for s in statement["body"]:
+                    self.execute(s)
+                self.env.set_variable(var, self.env.get_variable(var) + increment)
 
     def execute_struct_decl(self, statement):
         """
@@ -122,11 +143,17 @@ class Interpreter:
         Args:
             statement (dict): A dictionary representing struct instance
                             creation
+        Raises:
+            RuntimeError: Raise an exception of undefined struct
         """
         instanceName = statement["instance_name"]
         structType = statement["struct_type"]
 
         structFields = self.env.get_struct(structType)
+
+        if (structFields is None):
+            raise RuntimeError(f"Struct '{structType}' is not defined.")
+
         instance = {field: None for field in structFields}
         self.env.set_variable(instanceName, instance)
 
@@ -136,10 +163,19 @@ class Interpreter:
 
         Args:
             statement (dict): A dictionary representing file open ops
+
+        Raises:
+            RuntimeError: If the file does not exist.
+            RuntimeError: If the alias is already in use or any other environment-related error occurs.
         """
         fileName = statement["file_name"]
         alias = statement["alias"]
-        self.env.open_file(alias, fileName)
+        try:
+            self.env.open_file(alias, fileName)
+        except FileNotFoundError:
+            raise RuntimeError(f"File '{fileName}' not found.")
+        except RuntimeError as e:
+            raise RuntimeError(str(e))
 
     def execute_file_close(self, statement):
         """
@@ -147,9 +183,15 @@ class Interpreter:
 
         Args:
             statement (dict): A dictionary representing file close ops
+
+        Raises:
+            RuntimeError: If the alias is not associated with an open file.
         """
         alias = statement["alias"]
-        self.env.close_file(alias)
+        try:
+            self.env.close_file(alias)
+        except RuntimeError as e:
+            raise RuntimeError(str(e))
 
     def evaluate(self, expression):
         """
@@ -215,26 +257,23 @@ class Interpreter:
 
 
 if __name__ == "__main__":
-    ast = [
-        {
-            'type': 'VAR_DECL',
-            'variable': 'salary',
-            'value': {'type': 'NUMBER', 'value': 600000}
+    ast = ast = [
+        {"type": "VAR_DECL", "variable": "x", "value": {"type": "NUMBER", "value": 10}},
+        {"type": "VAR_DECL", "variable": "y", "value": {"type": "NUMBER", "value": 0}},
+        {"type": "CONDITIONAL",
+            "condition": {"left": {"type": "IDENTIFIER", "name": "x"}, "operator": "chota hai", "right": {"type": "NUMBER", "value": 5}},
+            "if": [{"type": "PRINT", "value": {"type": "STRING", "value": "x is less than 5"}}],
+            "else": [{"type": "PRINT", "value": {"type": "STRING", "value": "x is not less than 5"}}]
         },
-        {
-            'type': 'CONDITIONAL',
-            'condition': {
-                'left': {'type': 'IDENTIFIER', 'name': 'salary'},
-                'operator': 'bada hai',
-                'right': {'type': 'NUMBER', 'value': 500000}
-            },
-            'if': [
-                {'type': 'PRINT', 'value': {'type': 'STRING', 'value': 'Rich person detected!'}}
-            ],
-            'else': [
-                {'type': 'PRINT', 'value': {'type': 'STRING', 'value': 'Not rich!'}}
-            ]
-        }
+        {"type": "LOOP",
+            "variable": "i",
+            "start": {"type": "NUMBER", "value": 1},
+            "end": {"type": "NUMBER", "value": 5},
+            "increment": 1,
+            "body": [{"type": "PRINT", "value": {"type": "IDENTIFIER", "name": "i"}}]
+        },
+        {"type": "STRUCT_DECL", "struct_details": "Person", "members": ["name", "age"]},
+        {"type": "STRUCT_INSTANCE", "instance_name": "p1", "struct_type": "Person"}
     ]
 
     interpreter = Interpreter()
