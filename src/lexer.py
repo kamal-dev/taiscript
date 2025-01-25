@@ -1,12 +1,15 @@
 import re
 
 TOKEN_SPECIFICATION = [
+    ('YOJNA_START', r'yojna shuru'),            # Start of the program
+    ('YOJNA_END', r'yojna band'),               # End of the program
     ('NUMBER', r'\d+'),                         # Integer Numbers
     ('STRING', r'".*?"'),                       # Strings inside double quotes
     ('INPUT', r'pucho'),                        # User Input Operation
     ('VAR_DECL', r'likho'),                     # Variable Declaration
     ('BRIBE', r'ghoos lo'),                     # Bribe Statement
     ('PRINT', r'ghoshna'),                      # Print Statement
+    ('NO_NEWLINE', r'lagatar'),                 # Modifier for no newline
     ('OPERATOR', r'me jodo|se ghatao|me guna karo|ka bhag karo|ka shesh bhag karo'), # Arithmetic Operators
     ('INCREMENT', r'badhao'),                   # Increment Operator
     ('DECREMENT', r'ghatao'),                   # Decrement Operator
@@ -16,6 +19,7 @@ TOKEN_SPECIFICATION = [
     ('LOOP_END', r'ginti band'),                # Loop End
     ('FILE_OPEN', r'file kholo'),               # File Operations
     ('FILE_CLOSE', r'band karo'),               # File Operations
+    ('FILE_WRITE', r'me likho'),                # File Write Operation
     ('FILE_DECL', r'aur naam do'),              # File Instance Creation
     ('STRUCT_DECL', r'dhacha banao'),           # Structure declaration
     ('STRUCT_INSTANCE', r'aur usko banao'),     # Structure Instance Creation
@@ -92,7 +96,6 @@ def lexer(code):
                 if structName in structTypes:
                     tokens.append((kind, value))
                     tokens.append(('STRUCT_TYPE', structName))
-                    print(f"Instantiating Struct: {structName}")
                     i = nextIndex + 1
                     continue
 

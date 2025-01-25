@@ -60,12 +60,24 @@ pip install -r requirements.txt
 ```
 ---
 
+### **🥁 Code Execution**
+```plaintext
+chmod +x ./scripts/run_taiscript.py
+./scripts/run_taiscript.py examples/basic_syntax.tai
+```
+
 ---
 
 ### **🛠 Directory Structure**
 ```plaintext
 TaiScript/
 │── src/                    # Source code
+│   │── utils               # Utility code
+│   │   │── token_utils.py  # Utility to help the parser
+|   │   │── helper.py       # General helper functions
+|   │   │── logger.py       # Logs execution details
+|   │   │── time_utils.py   # Handles time-related functions (corruption inflation)
+|   │
 │   │── __init__.py         # Marks this as a package
 │   │── main.py             # Entry point of TaiScript compiler/interpreter
 │   │── lexer.py            # Tokenizer to break code into tokens
@@ -84,6 +96,8 @@ TaiScript/
 │   │── test_interpreter.py # Tests for interpreter
 │
 │── examples/               # Example TaiScript programs
+|   |── basic_syntax.py     # Example code demonstrating basic syntax of TaiScript
+|   |── basic_syntax.py     # Example code to print the pattern using nested loop.
 │
 │── docs/                   # Documentation
 │   │── syntax.md           # Language syntax documentation

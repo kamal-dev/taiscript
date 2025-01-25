@@ -1,0 +1,28 @@
+yojna shuru "TaxCompute"
+
+likho salary 1500000
+
+agar salary bada hai 500000 toh {
+    agar salary bada hai 1000000 toh {
+        ghoshna "Extremely rich!"
+    } warna {
+        ghoshna "Moderately rich."
+    }
+} warna {
+    ghoshna "Not rich."
+}
+
+ginti karo i 1 se 10 tak badhao 1 {
+    agar i ka shesh bhag karo 2 barabar hai 0 toh {
+        ghoshna "{i} is even."
+    } warna {
+        ghoshna "{i} is odd."
+    }
+}
+ginti band
+
+file kholo "report.txt" aur naam do report
+report me likho "Final salary is: " me jodo salary
+band karo report
+
+yojna band

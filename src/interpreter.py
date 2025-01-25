@@ -23,7 +23,6 @@ class Interpreter:
             for statement in ast:
                 self.execute(statement)
         except RuntimeError as e:
-            print(f"Runtime Error: {str(e)}")
             sys.exit(1)
 
     def execute(self, statement):
@@ -37,8 +36,11 @@ class Interpreter:
             RuntimeError: Raise an error is statement type is not known
         """
         statementType = statement["type"]
-
-        if (statementType == "VAR_DECL"):
+        if (statementType == "PROGRAM_START"):
+            pass
+        elif (statementType == "PROGRAM_END"):
+            pass
+        elif (statementType == "VAR_DECL"):
             self.execute_var_decl(statement)
         elif (statementType == "PRINT"):
             self.execute_print(statement)
@@ -54,6 +56,8 @@ class Interpreter:
             self.execute_file_open(statement)
         elif (statementType == "FILE_CLOSE"):
             self.execute_file_close(statement)
+        elif (statementType == "FILE_WRITE"):
+            self.execute_file_write(statement)
         else:
             raise RuntimeError(f"Unknown statement type: {statementType}")
 
@@ -74,9 +78,28 @@ class Interpreter:
 
         Args:
             statement (dict): A dictionary representing print statement
+
+        Raises:
+            RuntimeError: File alias is not open
         """
         value = self.evaluate(statement["value"])
-        print(value)
+        newline = statement.get("newline", True)
+
+        if ("file" in statement):
+            fileAlias = statement["file"]
+            try:
+                fileObject = self.env.files[fileAlias]
+                if newline:
+                    fileObject.write(value + "\n")
+                else:
+                    fileObject.write(value)
+            except KeyError:
+                raise RuntimeError(f"File alias '{fileAlias}' is not open.")
+        else:
+            if newline:
+                print(value)
+            else:
+                print(value, end="")
 
     def execute_conditional(self, statement):
         """
@@ -112,8 +135,14 @@ class Interpreter:
         start = self.evaluate(statement["start"])
         end = self.evaluate(statement["end"])
         increment = statement.get("increment", 1)
+        if (isinstance(increment, dict)):
+            increment = self.evaluate(increment)
+
+        if (not isinstance(start, int) or not isinstance(end, int) or not isinstance(increment, int)):
+            raise RuntimeError(f"Loop boundaries and increment must be integers. Got: start={start}, end={end}, increment={increment}")
 
         self.env.set_variable(var, start)
+
         if (increment > 0):
             while (self.env.get_variable(var) <= end):
                 for s in statement["body"]:
@@ -177,6 +206,25 @@ class Interpreter:
         except RuntimeError as e:
             raise RuntimeError(str(e))
 
+    def execute_file_write(self, statement):
+        """
+        Executes a file write ops
+
+        Args:
+            statement (dict): A dictionary representing file write
+
+        Raises:
+            RuntimeError: Raise an exception if file alias is not open
+        """
+        alias = statement["alias"]
+        value = self.evaluate(statement["value"])
+
+        try:
+            fileObject = self.env.files[alias]
+            fileObject.write(value + "\n")
+        except KeyError:
+            raise RuntimeError(f"File alias '{alias}' is not open.")
+
     def execute_file_close(self, statement):
         """
         Executes a file close ops
@@ -203,6 +251,7 @@ class Interpreter:
         Raises:
             RuntimeError: Expression type is unknown
             RuntimeError: If division by 0 occurs
+            RuntimeError: Operator type is unknown
 
         Returns:
             Any: Result of evaluated expressions
@@ -227,22 +276,11 @@ class Interpreter:
                 return left >= right
             elif (operator == "chota ya barabar hai"):
                 return left <= right
-            else:
-                raise RuntimeError(f"Unknown operator: {operator}")
-
-        exprType = expression["type"]
-        if (exprType == "NUMBER"):
-            return expression["value"]
-        elif (exprType == "STRING"):
-            return expression["value"]
-        elif (exprType == "IDENTIFIER"):
-            return self.env.get_variable(expression["name"])
-        elif (exprType == "BINARY_EXPRESSION"):
-            left = self.evaluate(expression["left"])
-            right = self.evaluate(expression["right"])
-            operator = expression["operator"]
-
-            if (operator == "me jodo"):
+            elif (operator == "me jodo"):
+                if isinstance(left, str) and not isinstance(right, str):
+                    right = str(right)
+                elif isinstance(right, str) and not isinstance(left, str):
+                    left = str(left)
                 return left + right
             elif (operator == "se ghatao"):
                 return left - right
@@ -252,28 +290,104 @@ class Interpreter:
                 if (right == 0):
                     raise RuntimeError("Division by zero.")
                 return left / right
+            elif (operator == "ka shesh bhag karo"):
+                if (right == 0):
+                    raise RuntimeError("Division by zero.")
+                return left % right
+            else:
+                raise RuntimeError(f"Unknown operator: {operator}")
+
+        exprType = expression["type"]
+        if (exprType == "NUMBER"):
+            return expression["value"]
+        elif (exprType == "STRING"):
+            raw_string = expression["value"]
+
+            def replace_placeholder(match):
+                var_name = match.group(1)
+                return str(self.env.get_variable(var_name))
+
+            import re
+            interpolated_string = re.sub(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}", replace_placeholder, raw_string)
+            return interpolated_string
+        elif (exprType == "IDENTIFIER"):
+            return self.env.get_variable(expression["name"])
         else:
             raise RuntimeError(f"Unknown expression type: {exprType}")
 
 
 if __name__ == "__main__":
-    ast = ast = [
-        {"type": "VAR_DECL", "variable": "x", "value": {"type": "NUMBER", "value": 10}},
-        {"type": "VAR_DECL", "variable": "y", "value": {"type": "NUMBER", "value": 0}},
-        {"type": "CONDITIONAL",
-            "condition": {"left": {"type": "IDENTIFIER", "name": "x"}, "operator": "chota hai", "right": {"type": "NUMBER", "value": 5}},
-            "if": [{"type": "PRINT", "value": {"type": "STRING", "value": "x is less than 5"}}],
-            "else": [{"type": "PRINT", "value": {"type": "STRING", "value": "x is not less than 5"}}]
+    ast = [
+        # Variable declaration
+        {"type": "VAR_DECL", "variable": "salary", "value": {"type": "NUMBER", "value": 700000}},
+
+        # Nested conditional
+        {
+            "type": "CONDITIONAL",
+            "condition": {
+                "left": {"type": "IDENTIFIER", "name": "salary"},
+                "operator": "bada hai",
+                "right": {"type": "NUMBER", "value": 500000}
+            },
+            "if": [
+                {
+                    "type": "CONDITIONAL",
+                    "condition": {
+                        "left": {"type": "IDENTIFIER", "name": "salary"},
+                        "operator": "bada hai",
+                        "right": {"type": "NUMBER", "value": 1000000}
+                    },
+                    "if": [
+                        {"type": "PRINT", "value": {"type": "STRING", "value": "Extremely rich!"}}
+                    ],
+                    "else": [
+                        {"type": "PRINT", "value": {"type": "STRING", "value": "Moderately rich."}}
+                    ]
+                }
+            ],
+            "else": [
+                {"type": "PRINT", "value": {"type": "STRING", "value": "Not rich."}}
+            ]
         },
-        {"type": "LOOP",
+
+        # Crazyyy loop
+        {
+            "type": "LOOP",
             "variable": "i",
             "start": {"type": "NUMBER", "value": 1},
-            "end": {"type": "NUMBER", "value": 5},
+            "end": {"type": "NUMBER", "value": 10},
             "increment": 1,
-            "body": [{"type": "PRINT", "value": {"type": "IDENTIFIER", "name": "i"}}]
+            "body": [
+                {
+                    "type": "CONDITIONAL",
+                    "condition": {
+                        "left": {"type": "BINARY_EXPRESSION", 
+                                "left": {"type": "IDENTIFIER", "name": "i"},
+                                "operator": "ka shesh bhag karo", 
+                                "right": {"type": "NUMBER", "value": 2}},
+                        "operator": "barabar hai",
+                        "right": {"type": "NUMBER", "value": 0}
+                    },
+                    "if": [
+                        {
+                            "type": "PRINT",
+                            "value": {"type": "STRING", "value": "{i} is even."}
+                        }
+                    ],
+                    "else": [
+                        {
+                            "type": "PRINT",
+                            "value": {"type": "STRING", "value": "{i} is odd."}
+                        }
+                    ]
+                }
+            ]
         },
-        {"type": "STRUCT_DECL", "struct_details": "Person", "members": ["name", "age"]},
-        {"type": "STRUCT_INSTANCE", "instance_name": "p1", "struct_type": "Person"}
+
+        # File operations
+        {"type": "FILE_OPEN", "file_name": "report.txt", "alias": "report"},
+        {"type": "PRINT", "value": {"type": "STRING", "value": "Final salary is: 500000"}, "file": "report"},
+        {"type": "FILE_CLOSE", "alias": "report"}
     ]
 
     interpreter = Interpreter()

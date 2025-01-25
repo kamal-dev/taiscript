@@ -15,10 +15,22 @@ class Parser:
 
         Returns:
             list: This code returns an Abstract Syntax Tree.
+
+        Raises:
+            SyntaxError: If program ends without 'yojna band'
         """
         ast = []
+
+        if (self.utils.match("YOJNA_START")):
+            program_name = self.utils.consume("STRING", "Expected program name after 'yojna shuru'.")
+            ast.append({"type": "PROGRAM_START", "name": program_name})
+
         while (not self.utils.is_at_end()):
             ast.append(self.parse_statement())
+
+        if (not any(node["type"] == "PROGRAM_END" for node in ast)):
+            raise SyntaxError("Program must end with 'yojna band'.")
+
         return ast
 
     def parse_statement(self):
@@ -45,6 +57,8 @@ class Parser:
                 return self.parse_struct_instance()
             else:
                 return self.parse_variable_declaration()
+        elif (self.utils.check("IDENTIFIER") and self.utils.check_next("FILE_WRITE")):
+            return self.parse_file_write()
         elif (self.utils.match("INPUT")):
             return self.parse_input()
         elif (self.utils.match("FILE_OPEN") or self.utils.match("FILE_CLOSE")):
@@ -61,6 +75,8 @@ class Parser:
             return {"type": "BREAK"}
         elif (self.utils.match("RETURN")):
             return {"type", "RETURN"}
+        elif self.utils.match("YOJNA_END"):
+            return {"type": "PROGRAM_END"}
         else:
             raise SyntaxError(f'Unexpected token: {self.utils.peek()}')
 
@@ -144,6 +160,18 @@ class Parser:
             alias = self.utils.consume("IDENTIFIER", "Expected file alias to close.")[1]
             return {"type": "FILE_CLOSE", "alias": alias}
 
+    def parse_file_write(self):
+        """
+        Parses a file write statement
+
+        Returns:
+            dict: Returns the type of operation, alias of the file and the value to be written.
+        """
+        alias = self.utils.consume("IDENTIFIER", "Expected file alias before 'me likho'.")[1]
+        self.utils.consume("FILE_WRITE", "Expected 'me likho'.")
+        value = self.parse_expression()
+        return {"type": "FILE_WRITE", "alias": alias, "value": value}
+
     def parse_bribe(self):
         """
         Extracts the amount of bribe
@@ -210,7 +238,11 @@ class Parser:
             dict: Returns type of operation and the value to be printed
         """
         value = self.parse_expression()
-        return {"type": "PRINT", "value": value}
+        newline = True
+        if (self.utils.match("NO_NEWLINE")):
+            newline = False
+
+        return {"type": "PRINT", "value": value, "newline": newline}
 
     def parse_conditional(self):
         """
@@ -252,16 +284,28 @@ class Parser:
         """
         Extracts the loop variable, range (start, end, increment), and body.
 
+        Raises:
+            SyntaxError: Expected end value
+
         Returns:
             dict: Returns type of op, loop variable, start, end, increement
                 and body of loop
         """
         loopVariable = self.utils.consume("IDENTIFIER", "Expected a loop variable")[1]
-        start = self.utils.consume("NUMBER", "Expected start value")[1]
-        end = self.utils.consume("NUMBER", "Expected end value.")[1]
-        increment = 1
+        start = {"type": "NUMBER", "value": self.utils.consume("NUMBER", "Expected start value")[1]}
+
+        if (self.utils.match("NUMBER")):
+            end = {"type": "NUMBER", "value": self.utils.previous()[1]}
+        elif (self.utils.match("IDENTIFIER")):
+            end = {"type": "IDENTIFIER", "name": self.utils.previous()[1]}
+        else:
+            raise SyntaxError("Expected end value (number or identifier).")
+
+        increment = {"type": "NUMBER", "value": 1}
         if (self.utils.match("INCREMENT")):
-            increment = self.utils.consume("NUMBER", "Expected increment value.")[1]
+            increment = {"type": "NUMBER", "value": self.utils.consume("NUMBER", "Expected increment value")[1]}
+        elif (self.utils.match("DECREMENT")):
+            increment = {"type": "NUMBER", "value": (-1*self.utils.consume("NUMBER", "Expected increment value")[1])}
 
         self.utils.consume("LCBRACE", "Expected '{' for loop body.")
         body = []

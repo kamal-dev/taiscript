@@ -1,0 +1,14 @@
+yojna shuru "PatternPrinter"
+
+likho n 10
+
+ginti karo i 1 se n tak {
+    ginti karo j 1 se i tak {
+        ghoshna "*" lagatar
+    }
+    ginti band
+    ghoshna ""
+}
+ginti band
+
+yojna band
