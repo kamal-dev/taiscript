@@ -26,17 +26,17 @@ def run_taiscript(file_path):
 
     try:
         tokens = lexer(code)
- #       print("\nTokens:")
- #       for token in tokens:
- #           print(token)
+        print("\nTokens:")
+        for token in tokens:
+            print(token)
 
         parser = Parser(tokens)
         ast = parser.parse()
-#        print("\nAbstract Syntax Tree (AST):")
-#        for node in ast:
-#            print(node)
+        print("\nAbstract Syntax Tree (AST):")
+        for node in ast:
+            print(node)
 
-#        print("\nOutput:")
+        print("\nOutput:")
         interpreter = Interpreter()
         interpreter.interpret(ast)
     except Exception as e:

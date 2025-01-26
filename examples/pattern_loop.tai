@@ -1,7 +1,11 @@
 yojna shuru "PatternPrinter"
 
+parichay "STUDENT"
+
+ghoos lo 100
 likho n 10
 
+ghoos lo 1000
 ginti karo i 1 se n tak {
     ginti karo j 1 se i tak {
         ghoshna "*" lagatar

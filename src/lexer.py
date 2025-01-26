@@ -7,6 +7,7 @@ TOKEN_SPECIFICATION = [
     ('STRING', r'".*?"'),                       # Strings inside double quotes
     ('INPUT', r'pucho'),                        # User Input Operation
     ('VAR_DECL', r'likho'),                     # Variable Declaration
+    ('PARICHAY', r'parichay'),                  # Parichay statement at top of the code
     ('BRIBE', r'ghoos lo'),                     # Bribe Statement
     ('PRINT', r'ghoshna'),                      # Print Statement
     ('NO_NEWLINE', r'lagatar'),                 # Modifier for no newline

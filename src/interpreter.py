@@ -4,10 +4,12 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.environment import Environment
+from src.utils.bribe_manager import BribeManager
 
 class Interpreter:
     def __init__(self):
         self.env = Environment()
+        self.bribeManager = BribeManager()
 
     def interpret(self, ast):
         """
@@ -20,9 +22,14 @@ class Interpreter:
             RuntimeError: Raises an exception if an error occurs during interpretation
         """
         try:
+            self.bribeManager.calculate_bribe_required(ast)
             for statement in ast:
                 self.execute(statement)
+
+            self.bribeManager.validate_bribe()
+
         except RuntimeError as e:
+            print(f"Runtime exception: {e}")
             sys.exit(1)
 
     def execute(self, statement):
@@ -58,6 +65,10 @@ class Interpreter:
             self.execute_file_close(statement)
         elif (statementType == "FILE_WRITE"):
             self.execute_file_write(statement)
+        elif statementType == "PARICHAY":
+            self.execute_parichay(statement)
+        elif statementType == "BRIBE":
+            self.execute_bribe(statement)
         else:
             raise RuntimeError(f"Unknown statement type: {statementType}")
 
@@ -315,6 +326,25 @@ class Interpreter:
         else:
             raise RuntimeError(f"Unknown expression type: {exprType}")
 
+    def execute_parichay(self, statement):
+        """
+        This function evaluates the parichay or profile of the user
+
+        Args:
+            statement (dict): A dictionary representing the parichay
+        """
+        profile = statement["profile"]
+        self.bribeManager.set_parichay(profile)
+
+    def execute_bribe(self, statement):
+        """
+        This function evaluates teh bribe amount to be collected
+
+        Args:
+            statement (dict): A dictionary representing the bribe amount
+        """
+        bribeAmount = statement["amount"][1]
+        self.bribeManager.collect_bribe(bribeAmount)
 
 if __name__ == "__main__":
     ast = [

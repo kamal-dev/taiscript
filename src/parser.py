@@ -63,6 +63,8 @@ class Parser:
             return self.parse_input()
         elif (self.utils.match("FILE_OPEN") or self.utils.match("FILE_CLOSE")):
             return self.parse_file_operation()
+        elif (self.utils.match("PARICHAY")):
+            return self.parse_parichay()
         elif (self.utils.match("BRIBE")):
             return self.parse_bribe()
         elif (self.utils.match("PRINT")):
@@ -171,6 +173,16 @@ class Parser:
         self.utils.consume("FILE_WRITE", "Expected 'me likho'.")
         value = self.parse_expression()
         return {"type": "FILE_WRITE", "alias": alias, "value": value}
+
+    def parse_parichay(self):
+        """
+        Parses the parichay string
+
+        Returns:
+            dict: Returns the type of operation, and profile type
+        """
+        profile = self.utils.consume("STRING", "Expected parichay description.")[1]
+        return {"type": "PARICHAY", "profile": profile}
 
     def parse_bribe(self):
         """
