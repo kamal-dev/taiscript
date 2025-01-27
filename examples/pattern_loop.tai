@@ -1,9 +1,12 @@
 yojna shuru "PatternPrinter"
 
-parichay "STUDENT"
+parichay "Janta"
 
-ghoos lo 100
+ghoos lo 500
 likho n 10
+ghoshna "Yaaaaayyyyy"
+
+pucho c
 
 ghoos lo 1000
 ginti karo i 1 se n tak {
@@ -14,5 +17,14 @@ ginti karo i 1 se n tak {
     ghoshna ""
 }
 ginti band
+
+ghoos lo 300
+
+ghoshna "Bolo"
+
+likho salary 5000
+file kholo "report.txt" aur naam do report
+report me likho "Final salary is: " me jodo salary
+band karo report
 
 yojna band

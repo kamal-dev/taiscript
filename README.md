@@ -11,11 +11,11 @@ TaiScript is a satirical, programming language insiperd by day-to-day life of a 
 - **Infrastructure Failures**: Use `bijli chali gayi` to break loops (power cuts in action!).
 - **Structured Programming**: Define and use structures with `dhacha bano`.
 - **Privilege System (`parichay`)**: Your role affects how much bribe is required:
-  - `Janta`: Maximum bribes.
-  - `Student`: 50% discount on bribes.
+  - `Janta`: Maximum bribes, there is some delay in viewing the output of the compilation.
+  - `Student`: 50% discount on bribes, there is some delay in viewing the output of the compilation..
   - `Chacha Vidhayak Hai`: No bribe needed, instant compilation
-  - `Bureaucrat`: Bribe required but refunded after compilation.
-  - `Minister`: 	No bribe needed, but compiler logs a corruption case in their name, and the corruption file disappears.
+  - `Babu Saheb`: Receives bribe based on the complexity of the work.
+  - `Neta Ji`: 	No bribe needed, but output is printed only after Neta Ji's praise - "Ye sab Neta Ji ke ashirwad se hua hai!"
 - **Human-Readable Syntax**: Declare variables with `likho`, output results with `ghoshna`, and more. Like natural language—write programs that even babus understand!
 
 ---

@@ -22,14 +22,11 @@ class Interpreter:
             RuntimeError: Raises an exception if an error occurs during interpretation
         """
         try:
-            self.bribeManager.calculate_bribe_required(ast)
             for statement in ast:
                 self.execute(statement)
 
-            self.bribeManager.validate_bribe()
-
         except RuntimeError as e:
-            print(f"Runtime exception: {e}")
+            print(f"\nRuntime exception: {e}")
             sys.exit(1)
 
     def execute(self, statement):
@@ -43,9 +40,15 @@ class Interpreter:
             RuntimeError: Raise an error is statement type is not known
         """
         statementType = statement["type"]
+
+        if (statement["type"] not in ["PARICHAY", "BRIBE", "PROGRAM_START", "PROGRAM_END", "INPUT"]):
+            self.bribeManager.validate_bribe(statement)
+
         if (statementType == "PROGRAM_START"):
             pass
         elif (statementType == "PROGRAM_END"):
+            pass
+        elif (statementType == "INPUT"):
             pass
         elif (statementType == "VAR_DECL"):
             self.execute_var_decl(statement)
@@ -142,6 +145,8 @@ class Interpreter:
         Args:
             statement (dict): A dictionary representing loop statement
         """
+        self.bribeManager.loop_inc()
+
         var = statement["variable"]
         start = self.evaluate(statement["start"])
         end = self.evaluate(statement["end"])
@@ -164,6 +169,8 @@ class Interpreter:
                 for s in statement["body"]:
                     self.execute(s)
                 self.env.set_variable(var, self.env.get_variable(var) + increment)
+
+        self.bribeManager.loop_dec()
 
     def execute_struct_decl(self, statement):
         """
@@ -329,12 +336,14 @@ class Interpreter:
     def execute_parichay(self, statement):
         """
         This function evaluates the parichay or profile of the user
+        and updates the required bribe based on parichay.
 
         Args:
             statement (dict): A dictionary representing the parichay
         """
         profile = statement["profile"]
         self.bribeManager.set_parichay(profile)
+        self.bribeManager.update_required_bribe()
 
     def execute_bribe(self, statement):
         """
