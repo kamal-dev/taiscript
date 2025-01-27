@@ -14,7 +14,7 @@ TaiScript is a satirical, programming language insiperd by day-to-day life of a 
   - `Janta`: Maximum bribes, there is some delay in viewing the output of the compilation.
   - `Student`: 50% discount on bribes, there is some delay in viewing the output of the compilation..
   - `Chacha Vidhayak Hai`: No bribe needed, instant compilation
-  - `Babu Saheb`: Receives bribe based on the complexity of the work.
+  - `Babu Saheb`: No bribe needed, but equivalent black money will be credited.
   - `Neta Ji`: 	No bribe needed, but output is printed only after Neta Ji's praise - "Ye sab Neta Ji ke ashirwad se hua hai!"
 - **Human-Readable Syntax**: Declare variables with `likho`, output results with `ghoshna`, and more. Like natural language—write programs that even babus understand!
 
@@ -100,8 +100,8 @@ TaiScript/
 |   |── basic_syntax.py     # Example code to print the pattern using nested loop.
 │
 │── docs/                   # Documentation
-│   │── syntax.md           # Language syntax documentation
-│   │── roadmap.md          # RoadMap for this project
+│   │── DOCUMENTATION.md    # Documentation for TaiScript
+│   │── ROADMAP.md          # RoadMap for this project
 │
 │── scripts/                # Utility scripts
 │   │── run_taiscript.sh    # Shell script to run TaiScript
