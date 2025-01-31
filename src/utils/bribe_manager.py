@@ -97,7 +97,7 @@ class BribeManager:
                 self.loopDeducted.add(self.loopDepth)
 
             if self.collectedBribe < 0:
-                raise RuntimeError(f"Itne me kya hoga! Thoda aur adjust karo, tabhi '{statement["type"]}' ki file aage badhegi.\nPass {abs(self.collectedBribe)} more under the table.")
+                raise RuntimeError(f"Itne me kya hoga! Thoda aur adjust karo, tabhi '{statement['type']}' ki file aage badhegi.\nPass {abs(self.collectedBribe)} more under the table.")
         else:
 
             if (self.loopDepth > 0):
@@ -112,7 +112,7 @@ class BribeManager:
 
             if (self.collectedBribe < self.baseBribe):
                 shortfall = self.baseBribe - self.collectedBribe
-                raise RuntimeError(f"Itne me kya hoga! Thoda aur adjust karo, tabhi '{statement["type"]}' ki file aage badhegi.\nPass {shortfall} more under the table.")
+                raise RuntimeError(f"Itne me kya hoga! Thoda aur adjust karo, tabhi '{statement['type']}' ki file aage badhegi.\nPass {shortfall} more under the table.")
 
     def reset(self):
         """
