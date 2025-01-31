@@ -10,6 +10,7 @@ class Interpreter:
     def __init__(self):
         self.env = Environment()
         self.bribeManager = BribeManager()
+        self.outputLog = []
 
     def interpret(self, ast):
         """
@@ -26,8 +27,11 @@ class Interpreter:
                 self.execute(statement)
 
         except RuntimeError as e:
-            print(f"\nRuntime exception: {e}")
+            self.outputLog.append(f"\nRuntime exception: {e}")
+            return "\n".join(self.outputLog)
             sys.exit(1)
+        
+        return "\n".join(self.outputLog)
 
     def execute(self, statement):
         """
@@ -111,9 +115,12 @@ class Interpreter:
                 raise RuntimeError(f"File alias '{fileAlias}' is not open.")
         else:
             if newline:
-                print(value)
+                self.outputLog.append(value)
             else:
-                print(value, end="")
+                if (self.outputLog):
+                    self.outputLog[-1] += value
+                else:
+                    self.outputLog.append(value)
 
     def execute_conditional(self, statement):
         """

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sys
 import os
 
@@ -10,44 +8,24 @@ from src.parser import Parser
 from src.interpreter import Interpreter
 
 
-def run_taiscript(file_path):
+def run_taiscript_from_string(input_text):
     """
-    Runs a TaiScript file by tokenizing, parsing, and interpreting the code.
+    Runs TaiScript code from a string input by tokenizing, parsing, and interpreting the code.
 
     Args:
-        file_path (str): Path to the TaiScript file.
+        input_text (str): TaiScript code as a string.
     """
-    if (not os.path.exists(file_path)):
-        print(f"Error: File '{file_path}' not found.")
-        sys.exit(1)
-
-    with open(file_path, 'r') as file:
-        code = file.read()
-
     try:
-        tokens = lexer(code)
-#       print("\nTokens:")
-#        for token in tokens:
-#            print(token)
+        # Tokenize the input text
+        tokens = lexer(input_text)
 
+        # Parse the tokens into an Abstract Syntax Tree (AST)
         parser = Parser(tokens)
         ast = parser.parse()
-#        print("\nAbstract Syntax Tree (AST):")
-#        for node in ast:
-#            print(node)
 
-#        print("\nOutput:")
+        # Interpret the AST
         interpreter = Interpreter()
         interpreter.interpret(ast)
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
-
-
-if __name__ == "__main__":
-
-    if len(sys.argv) != 2:
-        print("Usage: ./scripts/run_taiscript <path_to_file.tai>")
-        sys.exit(1)
-
-    run_taiscript(sys.argv[1])
