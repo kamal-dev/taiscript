@@ -105,15 +105,31 @@ def lexer(code):
         tokens.append((kind, value))
         i += 1
     
-        return tokens, "\n".join(errorLog)
+    if (not errorLog):
+        return tokens
+    else:
+        return "\n".join(errorLog)
 
 if __name__ == '__main__':
     sampleCode = """
-            dhacha banao TaxPayer {
-                likho name;
-                likho age;
-                likho salary;
-            }
-            likho tp aur usko banao TaxPayer
+            yojna shuru "PatternPrinter"
+
+parichay "JANTA"
+
+ghoos lo 500
+likho n 10
+ghoshna "Yaaaaayyyyy"
+
+ghoos lo 1000
+ginti karo i 1 se n tak {
+    ginti karo j 1 se i tak {
+        ghoshna "*" lagatar
+    }
+    ginti band
+    ghoshna ""
+}
+ginti band
+
+yojna band
         """
     print(lexer(sampleCode))
