@@ -105,10 +105,7 @@ def lexer(code):
         tokens.append((kind, value))
         i += 1
     
-    if (not errorLog):
-        return tokens
-    else:
-        return "\n".join(errorLog)
+    return tokens, "\n".join(errorLog)
 
 if __name__ == '__main__':
     sampleCode = """

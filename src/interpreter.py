@@ -113,10 +113,12 @@ class Interpreter:
             except KeyError:
                 raise RuntimeError(f"File alias '{fileAlias}' is not open.")
         else:
-            if newline:
-                self.outputLog.append(value)
+            if (value == ""):
+                self.outputLog.append("")
+            elif newline:
+                self.outputLog.append(value + "\n")
             else:
-                if (self.outputLog):
+                if (self.outputLog and not self.outputLog[-1].endswith("\n")):
                     self.outputLog[-1] += value
                 else:
                     self.outputLog.append(value)
