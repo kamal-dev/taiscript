@@ -8,6 +8,7 @@ from src.utils.token_utils import TokenUtils
 class Parser:
     def __init__(self, tokens):
         self.utils = TokenUtils(tokens)
+        self.errorLog = []
 
     def parse(self):
         """
@@ -24,14 +25,24 @@ class Parser:
         if (self.utils.match("YOJNA_START")):
             program_name = self.utils.consume("STRING", "Expected program name after 'yojna shuru'.")
             ast.append({"type": "PROGRAM_START", "name": program_name})
+        else:
+            self.errorLog.append("Syntax Error: Program must start with 'yojna shuru'.")
+            return "\n".join(self.errorLog)
 
         while (not self.utils.is_at_end()):
-            ast.append(self.parse_statement())
+            try:
+                ast.append(self.parse_statement())
+            except SyntaxError as e:
+                self.errorLog.append(f"Syntax Error: {str(e)}")
+                return "\n".join(self.errorLog)
 
         if (not any(node["type"] == "PROGRAM_END" for node in ast)):
-            raise SyntaxError("Program must end with 'yojna band'.")
+            self.errorLog.append(f"Syntax Error: Program must end with 'yojna band'.")
 
-        return ast
+        if (not self.errorLog):
+            return ast
+        else:
+            return "\n".join(self.errorLog)
 
     def parse_statement(self):
         """

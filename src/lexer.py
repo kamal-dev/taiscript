@@ -1,5 +1,7 @@
 import re
 
+errorLog = []
+
 TOKEN_SPECIFICATION = [
     ('YOJNA_START', r'yojna shuru'),            # Start of the program
     ('YOJNA_END', r'yojna band'),               # End of the program
@@ -72,7 +74,7 @@ def lexer(code):
             i += 1
             continue
         elif (kind == 'MISMATCH'):
-            raise SyntaxError(f'Unexpected character: {value}')
+            errorLog.append(f'Unexpected character: {value} at {tokenList[i].start()}')
 
         if (kind == 'STRUCT_DECL' and (i+1) < len(tokenList)):
             nextIndex = i + 1
@@ -103,7 +105,10 @@ def lexer(code):
         tokens.append((kind, value))
         i += 1
     
-    return tokens
+        if (not errorLog):
+            return tokens
+        else:
+            return "\n".join(errorLog)
 
 if __name__ == '__main__':
     sampleCode = """

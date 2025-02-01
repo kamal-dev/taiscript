@@ -29,8 +29,7 @@ class Interpreter:
         except RuntimeError as e:
             self.outputLog.append(f"\nRuntime exception: {e}")
             return "\n".join(self.outputLog)
-            sys.exit(1)
-        
+
         return "\n".join(self.outputLog)
 
     def execute(self, statement):
