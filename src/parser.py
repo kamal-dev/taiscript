@@ -27,22 +27,19 @@ class Parser:
             ast.append({"type": "PROGRAM_START", "name": program_name})
         else:
             self.errorLog.append("Syntax Error: Program must start with 'yojna shuru'.")
-            return "\n".join(self.errorLog)
+            return ast, "\n".join(self.errorLog)
 
         while (not self.utils.is_at_end()):
             try:
                 ast.append(self.parse_statement())
             except SyntaxError as e:
                 self.errorLog.append(f"Syntax Error: {str(e)}")
-                return "\n".join(self.errorLog)
+                return ast, "\n".join(self.errorLog)
 
         if (not any(node["type"] == "PROGRAM_END" for node in ast)):
             self.errorLog.append(f"Syntax Error: Program must end with 'yojna band'.")
 
-        if (not self.errorLog):
-            return ast
-        else:
-            return "\n".join(self.errorLog)
+        return ast, "\n".join(self.errorLog)
 
     def parse_statement(self):
         """
